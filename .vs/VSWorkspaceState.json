@@ -1,0 +1,17 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "Local Machine": [
+      "out\\build\\x64-Debug",
+      "out\\install\\x64-Debug"
+    ]
+  },
+  "ExpandedNodes": [
+    "",
+    "\\Project",
+    "\\Project\\Source",
+    "\\Project\\Source\\Runtime",
+    "\\Project\\Source\\Runtime\\Math"
+  ],
+  "SelectedNode": "\\Project\\Source\\Runtime\\Math\\ALL_BUILD.vcxproj",
+  "PreviewInSolutionExplorer": false
+}
