@@ -53,17 +53,30 @@ void SoftRenderer::LoadScene2D()
 }
 
 // 게임 로직과 렌더링 로직이 공유하는 변수
+Vector2 currentPosition;
+float currentScale = 10.f;
 
 
 // 게임 로직을 담당하는 함수
-void SoftRenderer::Update2D(float InDeltaSeconds)
+void SoftRenderer::Update2D(const float InDeltaSeconds)
 {
 	// 게임 로직에서 사용하는 모듈 내 주요 레퍼런스
 	auto& g = Get2DGameEngine();
 	const InputManager& input = g.GetInputManager();
 
 	// 게임 로직의 로컬 변수
+	static float moveSpeed = 100.f;
+	static float scaleMin = 5.f;
+	static float scaleMax = 20.f;
+	static float scaleSpeed = 20.f; // Zoom in-out
 
+	Vector2 inputVector = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)).GetNormalize();
+	Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;
+
+	float deltaScale = input.GetAxis(InputAxis::ZAxis) * scaleSpeed * InDeltaSeconds;
+
+	currentPosition += deltaPosition;
+	currentScale = Math::Clamp(currentScale + deltaScale, scaleMin, scaleMax);
 }
 
 // 렌더링 로직을 담당하는 함수
@@ -84,17 +97,25 @@ void SoftRenderer::Render2D()
 	// 하트를 구성하는 점 생성
 	if (hearts.empty())
 	{
-		for (rad = 0.f; rad < Math::TwoPI; rad += increment)
+		for (rad = 0.f; rad < Math::TwoPI; rad += increment) // 0 ~ 2pi
 		{
 			// 하트 방정식
 			// x와 y를 구하기.
 			// hearts.push_back(Vector2(x, y));
+			float sin = sinf(rad); // sin float <- corecrt_math.h
+			float cos = cosf(rad);
+			float cos2 = cosf(2 * rad);
+			float cos3 = cosf(3 * rad);
+			float cos4 = cosf(4 * rad);
+			float x = 16.f * sin * sin * sin;
+			float y = 13 * cos - 5 * cos2 - 2 * cos3 - cos4;
+			hearts.push_back(Vector2(x, y));
 		}
 	}
 
 	for (auto const& v : hearts)
 	{
-		r.DrawPoint(v * 10.f, LinearColor::Blue);
+		r.DrawPoint(v * currentScale + currentPosition, LinearColor::Blue);
 	}
 }
 
