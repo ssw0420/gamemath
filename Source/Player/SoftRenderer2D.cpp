@@ -97,11 +97,35 @@ void SoftRenderer::Render2D()
 		}
 	}
 
+	float sin = 0.f;
+	float cos = 0.f;
+	Math::GetSinCos(sin, cos, currentDegree);
+
+	static float maxLength = Vector2(_ScreenSize.X, _ScreenSize.Y).Size() * 0.5f;
+
 	// 사각형 그리기
 	HSVColor hsv(0.f, 1.f, 0.85f);
 	for (auto const& v : squares)
 	{
-		r.DrawPoint(v, hsv.ToLinearColor());
+		Vector2 polarV = v.ToPolarCoordinate(); // Vector2(Size(), Angle());
+
+		if (polarV.Y < 0.f)
+		{
+			polarV.Y += Math::TwoPI;
+		}
+		hsv.H = polarV.Y / Math::TwoPI;// 극좌표계의 각 정보로부터 색상을 결정
+
+		// 극좌표계의 크기 정보로부터 회전량을 결정
+		float ratio = polarV.X / maxLength;
+		float weight = Math::Lerp(1.f, 5.f, ratio);
+
+		// 극좌표계를 활용해 회전 부여
+		polarV.Y += Math::Deg2Rad(currentDegree) * weight;
+
+		Vector2 cartesianV = polarV.ToCartesianCoordinate();
+
+		r.DrawPoint(cartesianV, hsv.ToLinearColor());
+
 	}
 
 	// 현재 각도를 화면에 출력
